@@ -144,7 +144,7 @@ Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2) {
 void matrix_input(Matrix* matrix, Data_type type) {
     for (size_t i = 0; i < matrix->rows; i++) {
         for (size_t j = 0; j < matrix->cols; j++) {
-            printf("Введите эллемент матрицы [%zu][%zu]: ", i, j);
+            printf("Enter the matrix element [%zu][%zu]: ", i, j);
             if (type == INT) {
                 int* new_element = malloc(sizeof(int));
                 scanf("%d", new_element);
