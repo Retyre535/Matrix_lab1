@@ -64,8 +64,25 @@ Matrix matrices_sum(Matrix* matrix1, Matrix* matrix2) {
 Matrix transposition_matrix(const Matrix* matrix) {
     Matrix result;
     init_matrix(&result, matrix->cols, matrix->rows);
-
-
+    for (size_t i = 0; i < matrix->rows; i++) {
+        for (size_t j = 0; j < matrix->cols; j++) {
+            size_t old_index = i * matrix->cols + j;
+            size_t new_index = j * matrix->cols + i;
+            result.elements[old_index].type = matrix->elements[new_index].type;
+            if (matrix->elements[new_index].type == INT) {
+                int* a = (int*)matrix->elements[old_index].data;
+                int* b = malloc(sizeof(int));
+                *b = *a;
+                result.elements[new_index].data = b;
+            }
+            else if (matrix->elements[new_index].type == FLOAT) {
+                float* a = (float*)matrix->elements[old_index].data;
+                float* b = malloc(sizeof(float));
+                *b = *a;
+                result.elements[new_index].data = b;
+            }
+        }
+    }
     return result;
 }
 
@@ -83,7 +100,7 @@ void matrix_output(Matrix* matrix) {
     }
 }
 
-void freeMatrix(Matrix* matrix) {
+void free_matrix(Matrix* matrix) {
     for (size_t i = 0; i<matrix->rows*matrix->cols; i++) {
         free(matrix->elements[i].data);
     }
@@ -122,4 +139,8 @@ int main(void) {
             printf("Wrong transaction code");
             break;
     }
+
+    free_matrix(&matrix1);
+    free_matrix(&matrix2);
+    free_matrix(&result_matrix);
 }
