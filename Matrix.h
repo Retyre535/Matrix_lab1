@@ -27,5 +27,7 @@ void matrix_output(Matrix* matrix);
 void free_matrix(Matrix* matrix);
 Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2);
 void matrix_input(Matrix* matrix, Data_type type);
+void add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t* col_source,
+    float* factor, size_t new_row);
 
 #endif //MATRIX_H
