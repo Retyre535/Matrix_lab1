@@ -1,22 +1,10 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "Matrix.h"
-#include "Tests.h"
-
-/*typedef enum {
-    INT, FLOAT
-}Data_type;
-
-typedef struct {
-    void* data;
-    Data_type type;
-} Element;
-
-typedef struct {
-    Element* elements;
-    size_t rows;
-    size_t cols;
-} Matrix;
+//
+// Created by JDubo on 21.03.2025.
+//
 
 void init_matrix(Matrix* matrix, size_t rows, size_t cols) {
     matrix->elements = malloc(rows*cols * sizeof(Element));
@@ -63,7 +51,7 @@ Matrix matrices_sum(Matrix* matrix1, Matrix* matrix2) {
     return result;
 }
 
-Matrix transposition_matrix(const Matrix* matrix) {
+Matrix transposition_matrix(Matrix* matrix) {
     Matrix result;
     init_matrix(&result, matrix->cols, matrix->rows);
     for (size_t i = 0; i < matrix->rows; i++) {
@@ -158,50 +146,4 @@ void matrix_input(Matrix* matrix, Data_type type) {
             }
         }
     }
-}
-*/
-int main(void) {
-    int exit_code = 0;
-    while (exit_code == 0) {
-        Matrix matrix1, matrix2, result_matrix;
-        int rows_matrix1 = 0, cols_matrix1 = 0, cols_matrix2 = 0, rows_matrix2 = 0, transaction;
-        printf("Enter transaction code: \n1 - matrix addition\n2 - matrix multiplication\n3 - transposition\n4 - adding to a string a linear combination of other strings\n:");
-        scanf("%d", &transaction);
-        switch (transaction) {
-            case 1:
-                printf("Enter matrix sizes separated by spaces: ");
-                scanf("%d %d %d %d", &rows_matrix1, &cols_matrix1, &rows_matrix2, &cols_matrix2);
-                init_matrix(&matrix1, rows_matrix1, cols_matrix1);
-                init_matrix(&matrix2, rows_matrix2, cols_matrix2);
-                free_matrix(&matrix1);
-                free_matrix(&matrix2);
-                break;
-            case 2:
-                printf("Enter matrix sizes separated by spaces: ");
-                scanf("%d %d %d %d", &rows_matrix1, &cols_matrix1, &rows_matrix2, &cols_matrix2);
-                init_matrix(&matrix1, rows_matrix1, cols_matrix1);
-                init_matrix(&matrix2, rows_matrix2, cols_matrix2);
-                free_matrix(&matrix1);
-                free_matrix(&matrix2);
-                break;
-            case 3:
-                printf("Enter matrix dimensions separated by spaces: ");
-                scanf("%d %d", &rows_matrix1, &cols_matrix1);
-                init_matrix(&matrix1, rows_matrix1, cols_matrix1);
-                free_matrix(&matrix1);
-                break;
-            case 4:
-                printf("Enter matrix dimensions separated by spaces: ");
-                scanf("%d %d", &rows_matrix1, &cols_matrix1);
-                init_matrix(&matrix1, rows_matrix1, cols_matrix1);
-                free_matrix(&matrix1);
-                break;
-            default:
-                printf("Wrong transaction code");
-                break;
-        }
-        printf("Do you want to continue? (if yes 0/else 1): ");
-        scanf("%d", &exit_code);
-    }
-    printf("\n Execution completed");
 }
