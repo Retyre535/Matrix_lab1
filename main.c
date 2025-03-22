@@ -62,20 +62,20 @@ int main(void) {
     int exit_code = 0;
     while (exit_code == 0) {
         int transaction, type_code;
-        Data_type data_type;
+        Data_type data_type = INT;
         printf("Enter transaction code: \n1 - matrix addition\n2 - matrix multiplication\n3 - transposition\n4 - adding to a string a linear combination of other strings\nOther - default tests\n:");
         scanf("%d", &transaction);
-        printf("\nChoose type 1 - INT, 2 - FLOAT: ");
+        printf("\nChoose type 1 - Int, 2 - Float: ");
         scanf("%d", &type_code);
         if (type_code == 1) {
             data_type = INT;
-            transactions(transaction, data_type);
         } else if (type_code == 2) {
             data_type = FLOAT;
-            transactions(transaction, data_type);
         } else {
             printf("Wrong type code");
+            transaction = 5;
         }
+        transactions(transaction, data_type);
         printf("Do you want to continue? (if yes 0/else 1): ");
         scanf("%d", &exit_code);
     }

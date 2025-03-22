@@ -27,16 +27,16 @@ Matrix matrices_sum(Matrix* matrix1, Matrix* matrix2) {
                 size_t index = i * matrix1->cols + j;
                 result.elements[index].type = matrix1->elements[index].type;
                 if (matrix1->elements[index].type == INT && matrix2->elements[index].type == INT) {
-                    int* a = (int*)matrix1->elements[index].data;
-                    int* b = (int*)matrix2->elements[index].data;
+                    int* elements1 = (int*)matrix1->elements[index].data;
+                    int* elements2 = (int*)matrix2->elements[index].data;
                     int* sum = malloc(sizeof(int));
-                    *sum = *a + *b;
+                    *sum = *elements1 + *elements2;
                     result.elements[index].data = sum;
                 } else if (matrix1->elements[i].type == FLOAT && matrix2->elements[i].type == FLOAT) {
-                    float* a = (float*)matrix1->elements[index].data;
-                    float* b = (float*)matrix2->elements[index].data;
+                    float* elements1 = (float*)matrix1->elements[index].data;
+                    float* elements2 = (float*)matrix2->elements[index].data;
                     float* sum = malloc(sizeof(float));
-                    *sum = *a + *b;
+                    *sum = *elements1 + *elements2;
                     result.elements[index].data = sum;
                 } else {
                     printf("Different matrices elements types");
@@ -56,16 +56,16 @@ Matrix transposition_matrix(Matrix* matrix) {
             size_t new_index = j * matrix->rows + i;
             result.elements[new_index].type = matrix->elements[old_index].type;
             if (matrix->elements[old_index].type == INT) {
-                int* a = (int*)matrix->elements[old_index].data;
-                int* b = malloc(sizeof(int));
-                *b = *a;
-                result.elements[new_index].data = b;
+                int* elements_old = (int*)matrix->elements[old_index].data;
+                int* elements_new = malloc(sizeof(int));
+                *elements_new = *elements_old;
+                result.elements[new_index].data = elements_new;
             }
             else if (matrix->elements[old_index].type == FLOAT) {
-                float* a = (float*)matrix->elements[old_index].data;
-                float* b = malloc(sizeof(float));
-                *b = *a;
-                result.elements[new_index].data = b;
+                float* elements_old = (float*)matrix->elements[old_index].data;
+                float* elements_new = malloc(sizeof(float));
+                *elements_new = *elements_old;
+                result.elements[new_index].data = elements_new;
             }
         }
     }
@@ -107,18 +107,18 @@ Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2) {
                     int* sum = malloc(sizeof(int));
                     *sum = 0;
                     for (size_t k = 0; k < matrix1->cols; k++) {
-                        int* a = (int*)matrix1->elements[i * matrix1->cols + k].data;
-                        int* b = (int*)matrix2->elements[k * matrix2->cols + j].data;
-                        *sum += (*a) * (*b);
+                        int* elements1 = (int*)matrix1->elements[i * matrix1->cols + k].data;
+                        int* elements2 = (int*)matrix2->elements[k * matrix2->cols + j].data;
+                        *sum += (*elements1) * (*elements2);
                     }
                     result.elements[index].data = sum;
                 }else if (matrix1->elements[index].type == FLOAT) {
                     float* sum = malloc(sizeof(float));
                     *sum = 0.0f;
                     for (size_t k = 0; k < matrix1->cols; k++) {
-                        float* a = (float*)matrix1->elements[i * matrix1->cols + k].data;
-                        float* b = (float*)matrix2->elements[k * matrix2->cols + j].data;
-                        *sum += (*a) * (*b);
+                        float* element1 = (float*)matrix1->elements[i * matrix1->cols + k].data;
+                        float* element2 = (float*)matrix2->elements[k * matrix2->cols + j].data;
+                        *sum += (*element1) * (*element2);
                     }
                     result.elements[index].data = sum;
                 }
@@ -159,13 +159,13 @@ Matrix add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t r
             size_t index = i * matrix->cols + j;
             result.elements[index].type = matrix->elements[index].type;
             if (matrix->elements[index].type == INT) {
-                int* value = malloc(sizeof(int));
-                *value = *(int*)matrix->elements[index].data;
-                result.elements[index].data = value;
+                int* element = malloc(sizeof(int));
+                *element = *(int*)matrix->elements[index].data;
+                result.elements[index].data = element;
             } else if (matrix->elements[index].type == FLOAT) {
-                float* value = malloc(sizeof(float));
-                *value = *(float*)matrix->elements[index].data;
-                result.elements[index].data = value;
+                float* element = malloc(sizeof(float));
+                *element = *(float*)matrix->elements[index].data;
+                result.elements[index].data = element;
             }
         }
     }
@@ -173,13 +173,13 @@ Matrix add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t r
         size_t target_index = row_target * matrix->cols + j;
         size_t source_index = row_source * matrix->cols + j;
         if (matrix->elements[target_index].type == INT) {
-            int* target_value = (int*)result.elements[target_index].data;
-            int* source_value = (int*)matrix->elements[source_index].data;
-            *target_value += (int)(factor * (*source_value));
+            int* target_elements = (int*)result.elements[target_index].data;
+            int* source_elements = (int*)matrix->elements[source_index].data;
+            *target_elements += (int)(factor * (*source_elements));
         } else if (matrix->elements[target_index].type == FLOAT) {
-            float* target_value = (float*)result.elements[target_index].data;
-            float* source_value = (float*)matrix->elements[source_index].data;
-            *target_value += factor * (*source_value);
+            float* target_elements = (float*)result.elements[target_index].data;
+            float* source_elements = (float*)matrix->elements[source_index].data;
+            *target_elements += factor * (*source_elements);
         }
     }
     return result;
