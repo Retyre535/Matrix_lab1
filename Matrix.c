@@ -2,11 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Matrix.h"
-
 #include <math.h>
-//
-// Created by JDubo on 21.03.2025.
-//
 
 void init_matrix(Matrix* matrix, size_t rows, size_t cols) {
     matrix->elements = malloc(rows*cols * sizeof(Element));
@@ -155,24 +151,38 @@ void matrix_input(Matrix* matrix, Data_type type) {
     matrix_output(matrix);
 }
 
-void add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t* row_source,
-    float* factor, size_t num_rows) {
+Matrix add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t row_source, float factor) {
+    Matrix result, matrix2;
+    init_matrix(&result, matrix->rows, matrix->cols);
+    init_matrix(&matrix2, matrix->rows, matrix->cols);
     for (size_t i = 0; i < matrix->rows; i++) {
-        size_t target_index = row_target * matrix->cols + i;
-        if (matrix->elements[target_index].type == INT) {
-            int* target_element = (int*)matrix->elements[target_index].data;
-            for (size_t j = 0; j < num_rows; j++) {
-                size_t source_index = row_source[j] * matrix->cols+i;
-                int* source_element = (int*)matrix->elements[source_index].data;
-                *target_element += (int)(factor[j] * (*source_element));
-            }
-        } else if (matrix->elements[target_index].type == FLOAT) {
-            float* target_element = (float*)matrix->elements[target_index].data;
-            for (size_t j = 0; j < num_rows; j++) {
-                size_t source_index = row_source[j] * matrix->cols + i;
-                float* source_element = (float*)matrix->elements[source_index].data;
-                *target_element += factor[j] * (*source_element);
+        for (size_t j = 0; j < matrix->cols; j++) {
+            size_t index = i * matrix->cols + j;
+            result.elements[index].type = matrix->elements[index].type;
+            matrix2.elements[index].type = matrix->elements[index].type;
+            if (i == row_target) {
+                if (matrix->elements[index].type == INT) {
+                    int* a = malloc(sizeof(int));
+                    *a = *(int*)matrix->elements[row_source*matrix->cols+j].data*factor;
+                    matrix2.elements[index].data = a;
+                } else if (matrix->elements[index].type == FLOAT) {
+                    float* a = malloc(sizeof(float));
+                    *a = *(float*)matrix->elements[row_source*matrix->cols+j].data*factor;
+                    matrix2.elements[index].data = a;
+                }
+            }else {
+                if (matrix->elements[index].type == INT) {
+                    int* a = malloc(sizeof(int));
+                    *a = *(int*)matrix->elements[index].data*0;
+                    matrix2.elements[index].data = a;
+                } else if (matrix->elements[index].type == FLOAT) {
+                    float* a = malloc(sizeof(float));
+                    *a = *(float*)matrix->elements[index].data*0;
+                    matrix2.elements[index].data = a;
+                }
             }
         }
     }
+    result = matrices_sum(matrix, &matrix2);
+    return result;
 }

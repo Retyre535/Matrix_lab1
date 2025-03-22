@@ -1,6 +1,3 @@
-//
-// Created by JDubo on 21.03.2025.
-//
 #ifndef MATRIX_H
 #define MATRIX_H
 
@@ -30,7 +27,6 @@ void matrix_output(Matrix* matrix);
 void free_matrix(Matrix* matrix);
 Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2);
 void matrix_input(Matrix* matrix, Data_type type);
-void add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t* col_source,
-    float* factor, size_t new_row);
+Matrix add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t col_source, float factor);
 
 #endif //MATRIX_H
