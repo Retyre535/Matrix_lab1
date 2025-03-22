@@ -98,33 +98,34 @@ void free_matrix(Matrix* matrix) {
 }
 
 Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2) {
-    if (matrix1->rows != matrix2->cols) {
-        printf("Multiplication is not possible due to the matrix sizes.");
-    }
     Matrix result;
     init_matrix(&result, matrix1->rows, matrix2->cols);
-    for (size_t i = 0; i < matrix1->rows; i++) {
-        for (size_t j = 0; j < matrix2->cols; j++) {
-            size_t index = i * matrix1->cols + j;
-            result.elements[index].type = matrix1->elements[index].type;
-            if (matrix1->elements[index].type == INT) {
-                int* sum = malloc(sizeof(int));
-                *sum = 0;
-                for (size_t k = 0; k < matrix1->cols; k++) {
-                    int* a = (int*)matrix1->elements[i * matrix1->cols + k].data;
-                    int* b = (int*)matrix2->elements[k * matrix2->cols + j].data;
-                    *sum += (*a) * (*b);
+    if (matrix1->cols != matrix2->rows) {
+        printf("Multiplication is not possible due to the matrix sizes.");
+    } else {
+        for (size_t i = 0; i < matrix1->rows; i++) {
+            for (size_t j = 0; j < matrix2->cols; j++) {
+                size_t index = i * matrix2->cols + j;
+                result.elements[index].type = matrix1->elements[0].type;
+                if (matrix1->elements[0].type == INT) {
+                    int* sum = malloc(sizeof(int));
+                    *sum = 0;
+                    for (size_t k = 0; k < matrix1->cols; k++) {
+                        int* a = (int*)matrix1->elements[i * matrix1->cols + k].data;
+                        int* b = (int*)matrix2->elements[k * matrix2->cols + j].data;
+                        *sum += (*a) * (*b);
+                    }
+                    result.elements[index].data = sum;
+                }else if (matrix1->elements[index].type == FLOAT) {
+                    float* sum = malloc(sizeof(float));
+                    *sum = 0.0f;
+                    for (size_t k = 0; k < matrix1->cols; k++) {
+                        float* a = (float*)matrix1->elements[i * matrix1->cols + k].data;
+                        float* b = (float*)matrix2->elements[k * matrix2->cols + j].data;
+                        *sum += (*a) * (*b);
+                    }
+                    result.elements[index].data = sum;
                 }
-                result.elements[index].data = sum;
-            }else if (matrix1->elements[index].type == FLOAT) {
-                float* sum = malloc(sizeof(float));
-                *sum = 0.0f;
-                for (size_t k = 0; k < matrix1->cols; k++) {
-                    float* a = (float*)matrix1->elements[i * matrix1->cols + k].data;
-                    float* b = (float*)matrix2->elements[k * matrix2->cols + j].data;
-                    *sum += (*a) * (*b);
-                }
-                result.elements[index].data = sum;
             }
         }
     }
