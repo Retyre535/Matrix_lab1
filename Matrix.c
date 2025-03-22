@@ -25,27 +25,25 @@ Matrix matrices_sum(Matrix* matrix1, Matrix* matrix2) {
     init_matrix(&result, matrix1->rows, matrix1->cols);
     if (matrix1->rows != matrix2->rows || matrix1->cols != matrix2->cols) {
         printf("Matrices size is different");
-        exit(1);
     } else {
         for (size_t i = 0; i < matrix1->rows; i++) {
             for (size_t j = 0; j < matrix1->cols; j++) {
                 size_t index = i * matrix1->cols + j;
                 result.elements[index].type = matrix1->elements[index].type;
                 if (matrix1->elements[index].type == INT && matrix2->elements[index].type == INT) {
-                    int* a = (int*)matrix1->elements[i].data;
-                    int* b = (int*)matrix2->elements[i].data;
+                    int* a = (int*)matrix1->elements[index].data;
+                    int* b = (int*)matrix2->elements[index].data;
                     int* sum = malloc(sizeof(int));
                     *sum = *a + *b;
                     result.elements[index].data = sum;
                 } else if (matrix1->elements[i].type == FLOAT && matrix2->elements[i].type == FLOAT) {
-                    float* a = (float*)matrix1->elements[i].data;
-                    float* b = (float*)matrix2->elements[i].data;
+                    float* a = (float*)matrix1->elements[index].data;
+                    float* b = (float*)matrix2->elements[index].data;
                     float* sum = malloc(sizeof(float));
                     *sum = *a + *b;
                     result.elements[index].data = sum;
                 } else {
                     printf("Different matrices elements types");
-                    exit(1);
                 }
             }
         }
@@ -59,15 +57,15 @@ Matrix transposition_matrix(Matrix* matrix) {
     for (size_t i = 0; i < matrix->rows; i++) {
         for (size_t j = 0; j < matrix->cols; j++) {
             size_t old_index = i * matrix->cols + j;
-            size_t new_index = j * matrix->cols + i;
-            result.elements[old_index].type = matrix->elements[new_index].type;
-            if (matrix->elements[new_index].type == INT) {
+            size_t new_index = j * matrix->rows + i;
+            result.elements[new_index].type = matrix->elements[old_index].type;
+            if (matrix->elements[old_index].type == INT) {
                 int* a = (int*)matrix->elements[old_index].data;
                 int* b = malloc(sizeof(int));
                 *b = *a;
                 result.elements[new_index].data = b;
             }
-            else if (matrix->elements[new_index].type == FLOAT) {
+            else if (matrix->elements[old_index].type == FLOAT) {
                 float* a = (float*)matrix->elements[old_index].data;
                 float* b = malloc(sizeof(float));
                 *b = *a;
@@ -102,7 +100,6 @@ void free_matrix(Matrix* matrix) {
 Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2) {
     if (matrix1->rows != matrix2->cols) {
         printf("Multiplication is not possible due to the matrix sizes.");
-        exit(1);
     }
     Matrix result;
     init_matrix(&result, matrix1->rows, matrix2->cols);
@@ -135,6 +132,11 @@ Matrix matrix_multiplication(Matrix* matrix1, Matrix* matrix2) {
 }
 
 void matrix_input(Matrix* matrix, Data_type type) {
+    printf("\nEnter the number of rows: ");
+    scanf("%zu", &matrix->rows);
+    printf("Enter the number of cols: ");
+    scanf("%zu", &matrix->cols);
+    init_matrix(matrix, matrix->rows, matrix->cols);
     for (size_t i = 0; i < matrix->rows; i++) {
         for (size_t j = 0; j < matrix->cols; j++) {
             printf("Enter the matrix element [%zu][%zu]: ", i, j);
@@ -149,6 +151,7 @@ void matrix_input(Matrix* matrix, Data_type type) {
             }
         }
     }
+    matrix_output(matrix);
 }
 
 void add_linear_combination_to_row(Matrix* matrix, size_t row_target, size_t* row_source,

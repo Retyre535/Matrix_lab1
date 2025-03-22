@@ -1,12 +1,15 @@
 //
 // Created by JDubo on 21.03.2025.
 //
-
 #ifndef MATRIX_H
 #define MATRIX_H
+
+#include <stddef.h>
+
 typedef enum {
-    INT, FLOAT
-}Data_type;
+    INT,
+    FLOAT
+} Data_type;
 
 typedef struct {
     void* data;
