@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Matrix.h"
+#include "Tests.h"
 
 void transactions(int transaction, Data_type type) {
     Matrix matrix1, matrix2, result_matrix;
@@ -52,6 +53,7 @@ void transactions(int transaction, Data_type type) {
                 free_matrix(&result_matrix);
                 break;
             default:
+                transposition_int_tests();
                 printf("Wrong transaction code");
                 break;
         }
