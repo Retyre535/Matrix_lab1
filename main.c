@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "Matrix.h"
 #include "Tests.h"
 
@@ -53,8 +52,8 @@ void transactions(int transaction, Data_type type) {
                 free_matrix(&result_matrix);
                 break;
             default:
-                transposition_int_tests();
-                printf("Wrong transaction code");
+                run_file_tests("C:\\Users\\JDubo\\CLionProjects\\untitled\\tests_matrices_int.txt", INT);
+                run_file_tests("C:\\Users\\JDubo\\CLionProjects\\untitled\\tests_matrices_float.txt", FLOAT);
                 break;
         }
 
@@ -63,12 +62,14 @@ void transactions(int transaction, Data_type type) {
 int main(void) {
     int exit_code = 0;
     while (exit_code == 0) {
-        int transaction, type_code;
+        int transaction, type_code = 1;
         Data_type data_type = INT;
         printf("Enter transaction code: \n1 - matrix addition\n2 - matrix multiplication\n3 - transposition\n4 - adding to a string a linear combination of other strings\nOther - default tests\n:");
         scanf("%d", &transaction);
-        printf("\nChoose type 1 - Int, 2 - Float: ");
-        scanf("%d", &type_code);
+        if (transaction>=1 && transaction<=4) {
+            printf("\nChoose type 1 - Int, 2 - Float: ");
+            scanf("%d", &type_code);
+        }
         if (type_code == 1) {
             data_type = INT;
         } else if (type_code == 2) {
