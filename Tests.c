@@ -1,30 +1,37 @@
 #include "Tests.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "Matrix.h"
+#define FLOAT_EPSILON 1e-5f
 
 bool matrix_equality_check(Matrix* matrix1, Matrix* matrix2) {
+    if (!matrix1 || !matrix2 || !matrix1->elements || !matrix2->elements) {
+        return false;
+    }
     if (matrix1->rows != matrix2->rows || matrix1->cols != matrix2->cols) {
         return false;
     }
     for (size_t i = 0; i < matrix1->rows; i++) {
         for (size_t j = 0; j < matrix1->cols; j++) {
             size_t index = i * matrix1->cols + j;
-            if (matrix1->elements[index].type != matrix2->elements[index].type) {
+            Element* elements1 = &matrix1->elements[index];
+            Element* elements2 = &matrix2->elements[index];
+            if (elements1->type != elements2->type) {
                 return false;
             }
-            if (matrix1->elements[index].type == INT) {
-                int* elements1 = (int*)matrix1->elements[index].data;
-                int* elements2 = (int*)matrix2->elements[index].data;
-                if (*elements1 != *elements2) {
+            if (elements1->type == INT) {
+                int val1 = *(int*)elements1->data;
+                int val2 = *(int*)elements2->data;
+                if (val1 != val2) {
                     return false;
                 }
-            } else if (matrix1->elements[index].type == FLOAT) {
-                float* elements1 = (float*)matrix1->elements[index].data;
-                float* elements2 = (float*)matrix2->elements[index].data;
-                if (*elements1 != *elements2) {
+            } else {
+                float val1 = *(float*)elements1->data;
+                float val2 = *(float*)elements2->data;
+                if (fabsf(val1 - val2) > FLOAT_EPSILON) {
                     return false;
                 }
             }
