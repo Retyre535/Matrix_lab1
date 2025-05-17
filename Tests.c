@@ -1,10 +1,10 @@
-#include "Tests.h"
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "Matrix.h"
+#include "Tests.h"
 #define FLOAT_EPSILON 1e-5f
 
 bool matrix_equality_check(Matrix* matrix1, Matrix* matrix2) {
@@ -23,15 +23,15 @@ bool matrix_equality_check(Matrix* matrix1, Matrix* matrix2) {
                 return false;
             }
             if (elements1->type == INT) {
-                int val1 = *(int*)elements1->data;
-                int val2 = *(int*)elements2->data;
-                if (val1 != val2) {
+                int element1 = *(int*)elements1->data;
+                int element2 = *(int*)elements2->data;
+                if (element1 != element2) {
                     return false;
                 }
             } else {
-                float val1 = *(float*)elements1->data;
-                float val2 = *(float*)elements2->data;
-                if (fabsf(val1 - val2) > FLOAT_EPSILON) {
+                float element1 = *(float*)elements1->data;
+                float element2 = *(float*)elements2->data;
+                if (fabsf(element1 - element2) > FLOAT_EPSILON) {
                     return false;
                 }
             }
@@ -53,6 +53,16 @@ void free_test_data(Matrix_test_data* data) {
         }
         free(data->sums);
         free(data->sum_indexes);
+        for (size_t i = 0; i < data->mul_count; i++) {
+            free_matrix(&data->multiplications[i]);
+        }
+        free(data->multiplications);
+        free(data->multiplication_indexes);
+        for (size_t i = 0; i < data->lin_comb_count; i++) {
+            free_matrix(&data->linear_combinations[i]);
+        }
+        free(data->linear_combinations);
+        free(data->linear_combination_params);
     }
 }
 
@@ -98,17 +108,25 @@ int read_test_file(const char* filename, Matrix_test_data* data, Data_type type)
     }
     data->matrices = (Matrix*)malloc(data->matrix_count * sizeof(Matrix));
     for (size_t i = 0; i < data->matrix_count; i++) {
-        if (!read_matrix(file, &data->matrices[i], type)) {}
+        if (!read_matrix(file, &data->matrices[i], type)) {
+            fclose(file);
+            return 0;
+        }
     }
-    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) || strstr(buffer, "Transposition results") == NULL) {
+    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) ||
+        strstr(buffer, "Transposition results") == NULL) {
         fclose(file);
         return 0;
     }
     data->transpositions = (Matrix*)malloc(data->matrix_count * sizeof(Matrix));
     for (size_t i = 0; i < data->matrix_count; i++) {
-        if (!read_matrix(file, &data->transpositions[i], type)) {}
+        if (!read_matrix(file, &data->transpositions[i], type)) {
+            fclose(file);
+            return 0;
+        }
     }
-    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) || strstr(buffer, "Sum results") == NULL) {
+    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) ||
+        strstr(buffer, "Sum results") == NULL) {
         fclose(file);
         return 0;
     }
@@ -119,10 +137,17 @@ int read_test_file(const char* filename, Matrix_test_data* data, Data_type type)
     data->sums = (Matrix*)malloc(data->sum_count * sizeof(Matrix));
     data->sum_indexes = (int*)malloc(data->sum_count * 2 * sizeof(int));
     for (size_t i = 0; i < data->sum_count; i++) {
-        if (fscanf(file, "%d %d", &data->sum_indexes[i*2], &data->sum_indexes[i*2+1]) != 2) {}
-        if (!read_matrix(file, &data->sums[i], type)) {}
+        if (fscanf(file, "%d %d", &data->sum_indexes[i*2], &data->sum_indexes[i*2+1]) != 2) {
+            fclose(file);
+            return 0;
+        }
+        if (!read_matrix(file, &data->sums[i], type)) {
+            fclose(file);
+            return 0;
+        }
     }
-    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) || strstr(buffer, "Multiplication results") == NULL) {
+    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) ||
+        strstr(buffer, "Multiplication results") == NULL) {
         fclose(file);
         return 0;
     }
@@ -133,8 +158,40 @@ int read_test_file(const char* filename, Matrix_test_data* data, Data_type type)
     data->multiplications = (Matrix*)malloc(data->mul_count * sizeof(Matrix));
     data->multiplication_indexes = (int*)malloc(data->mul_count * 2 * sizeof(int));
     for (size_t i = 0; i < data->mul_count; i++) {
-        if (fscanf(file, "%d %d", &data->multiplication_indexes[i*2], &data->multiplication_indexes[i*2+1]) != 2) {}
-        if (!read_matrix(file, &data->multiplications[i], type)) {}
+        if (fscanf(file, "%d %d", &data->multiplication_indexes[i*2], &data->multiplication_indexes[i*2+1]) != 2) {
+            fclose(file);
+            return 0;
+        }
+        if (!read_matrix(file, &data->multiplications[i], type)) {
+            fclose(file);
+            return 0;
+        }
+    }
+    if (!fgets(buffer, sizeof(buffer), file) || !fgets(buffer, sizeof(buffer), file) ||
+        strstr(buffer, "Linear combination results") == NULL) {
+        fclose(file);
+        return 0;
+    }
+    if (fscanf(file, "%zu", &data->lin_comb_count) != 1) {
+        fclose(file);
+        return 0;
+    }
+    data->linear_combinations = (Matrix*)malloc(data->lin_comb_count * sizeof(Matrix));
+    data->linear_combination_params = (int*)malloc(data->lin_comb_count * 4 * sizeof(int));
+    for (size_t i = 0; i < data->lin_comb_count; i++) {
+        // Read matrix index, target row, source row, and factor
+        if (fscanf(file, "%d %d %d %f",
+                   &data->linear_combination_params[i*4],
+                   &data->linear_combination_params[i*4+1],
+                   &data->linear_combination_params[i*4+2],
+                   (float*)&data->linear_combination_params[i*4+3]) != 4) {
+            fclose(file);
+            return 0;
+        }
+        if (!read_matrix(file, &data->linear_combinations[i], type)) {
+            fclose(file);
+            return 0;
+        }
     }
     fclose(file);
     return 1;
@@ -146,14 +203,28 @@ void run_file_tests(const char* filename, Data_type type) {
         printf("Failed to read test data\n");
         return;
     }
+    Matrix (*sum_func)(Matrix*, Matrix*) = get_sum_function(type);
+    Matrix (*mul_func)(Matrix*, Matrix*) = get_multiplication_function(type);
+    Matrix (*trans_func)(Matrix*) = get_transposition_function(type);
+    Matrix (*lin_comb_func)(Matrix*, size_t, size_t, float) = get_linear_combination_function(type);
+    size_t passed_tests = 0;
+    size_t total_tests = 0;
     printf("\n=== Transposition Tests ===\n");
     for (size_t i = 0; i < test_data.matrix_count; i++) {
-        Matrix transposition_matrices = transposition_matrix(&test_data.matrices[i]);
+        Matrix transposition_matrices = trans_func(&test_data.matrices[i]);
+        printf("Matrix %zu:\n", i+1);
+        matrix_output(&test_data.matrices[i]);
+        printf("Expected result:\n");
+        matrix_output(&test_data.transpositions[i]);
+        printf("Actual result:\n");
+        matrix_output(&transposition_matrices);
         if (matrix_equality_check(&transposition_matrices, &test_data.transpositions[i])) {
             printf("Test %zu passed\n", i+1);
+            passed_tests++;
         } else {
             printf("Test %zu failed\n", i+1);
         }
+        total_tests++;
         free_matrix(&transposition_matrices);
     }
     printf("=== Transposition Tests ===\n");
@@ -161,12 +232,22 @@ void run_file_tests(const char* filename, Data_type type) {
     for (size_t i = 0; i < test_data.sum_count; i++) {
         int index1 = test_data.sum_indexes[i*2];
         int index2 = test_data.sum_indexes[i*2+1];
-        Matrix sum_matrix = matrices_sum(&test_data.matrices[index1], &test_data.matrices[index2]);
+        printf("Matrix1 (M%d):\n", index1+1);
+        matrix_output(&test_data.matrices[index1]);
+        printf("Matrix2 (M%d):\n", index2+1);
+        matrix_output(&test_data.matrices[index2]);
+        Matrix sum_matrix = sum_func(&test_data.matrices[index1], &test_data.matrices[index2]);
+        printf("Expected result:\n");
+        matrix_output(&test_data.sums[i]);
+        printf("Actual result:\n");
+        matrix_output(&sum_matrix);
         if (matrix_equality_check(&sum_matrix, &test_data.sums[i])) {
             printf("Test %zu (M%d + M%d) passed\n", i+1, index1+1, index2+1);
+            passed_tests++;
         } else {
             printf("Test %zu (M%d + M%d) failed\n", i+1, index1+1, index2+1);
         }
+        total_tests++;
         free_matrix(&sum_matrix);
     }
     printf("=== Summation Tests ===\n");
@@ -174,14 +255,50 @@ void run_file_tests(const char* filename, Data_type type) {
     for (size_t i = 0; i < test_data.mul_count; i++) {
         int index1 = test_data.multiplication_indexes[i*2];
         int index2 = test_data.multiplication_indexes[i*2+1];
-        Matrix multiplication_matrix = matrix_multiplication(&test_data.matrices[index1], &test_data.matrices[index2]);
+        printf("Matrix1 (M%d):\n", index1+1);
+        matrix_output(&test_data.matrices[index1]);
+        printf("Matrix2 (M%d):\n", index2+1);
+        matrix_output(&test_data.matrices[index2]);
+        Matrix multiplication_matrix = mul_func(&test_data.matrices[index1], &test_data.matrices[index2]);
+        printf("Expected result:\n");
+        matrix_output(&test_data.multiplications[i]);
+        printf("Actual result:\n");
+        matrix_output(&multiplication_matrix);
         if (matrix_equality_check(&multiplication_matrix, &test_data.multiplications[i])) {
             printf("Test %zu (M%d * M%d) passed\n", i+1, index1+1, index2+1);
+            passed_tests++;
         } else {
             printf("Test %zu (M%d * M%d) failed\n", i+1, index1+1, index2+1);
         }
+        total_tests++;
         free_matrix(&multiplication_matrix);
     }
     printf("=== Multiplication Tests ===\n");
+    printf("\n=== Linear Combination Tests ===\n");
+    for (size_t i = 0; i < test_data.lin_comb_count; i++) {
+        int matrix_index = test_data.linear_combination_params[i*4];
+        int target_row = test_data.linear_combination_params[i*4+1];
+        int source_row = test_data.linear_combination_params[i*4+2];
+        float factor = *(float*)&test_data.linear_combination_params[i*4+3];
+        printf("Matrix (M%d):\n", matrix_index+1);
+        matrix_output(&test_data.matrices[matrix_index]);
+        printf("Operation: Add to row %d a linear combination of row %d with factor %.2f\n", target_row, source_row, factor);
+        Matrix lin_comb_matrix = lin_comb_func(&test_data.matrices[matrix_index], target_row, source_row, factor);
+        printf("Expected result:\n");
+        matrix_output(&test_data.linear_combinations[i]);
+        printf("Actual result:\n");
+        matrix_output(&lin_comb_matrix);
+        if (matrix_equality_check(&lin_comb_matrix, &test_data.linear_combinations[i])) {
+            printf("Test %zu passed\n", i+1);
+            passed_tests++;
+        } else {
+            printf("Test %zu failed\n", i+1);
+        }
+        total_tests++;
+        free_matrix(&lin_comb_matrix);
+    }
+    printf("=== Linear Combination Tests ===\n");
+    printf("\n=== Test Summary ===\n");
+    printf("Passed: %zu/%zu (%.2f%%)\n", passed_tests, total_tests, (float)passed_tests / total_tests * 100);
     free_test_data(&test_data);
 }

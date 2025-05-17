@@ -34,7 +34,7 @@ endif()
 
 # Set path to fallback-tool for dependency-resolution.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Users/JDubo/CLion 2024.3.4/bin/mingw/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "C:/Qt/Tools/mingw1310_64/bin/objdump.exe")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

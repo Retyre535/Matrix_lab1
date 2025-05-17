@@ -9,11 +9,14 @@ typedef struct {
     Matrix* transpositions;
     Matrix* sums;
     Matrix* multiplications;
+    Matrix* linear_combinations;
     int* sum_indexes;
     int* multiplication_indexes;
+    int* linear_combination_params;
     size_t matrix_count;
     size_t sum_count;
     size_t mul_count;
+    size_t lin_comb_count;
 } Matrix_test_data;
 
 bool matrix_equality_check(Matrix* matrix1, Matrix* matrix2);
